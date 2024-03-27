@@ -21,21 +21,37 @@ def new_runner(pg: PageData):
             return bibNumber
         except:
             bib_number_text_box.error_text = "Must be int"
+    
+    def onUpdateName (e):
+        name_text_box.error_text = ""
+    
+    def onUpdateAge (e):
+        age_dropdown.error_text = ""
+    
+    def onUpdateGender (e):
+        gender_dropdown.error_text = ""
             
-    name_text_box = ft.TextField(label="Name")
+    name_text_box = ft.TextField(label="Name", on_change= onUpdateName)
     bib_number_text_box = ft.TextField(label="Bib Number", on_change= onUpdateBibNumber)
 
 
     pg.add( bib_number_text_box, name_text_box)
     def button_clicked(e):
-        db.insert({"bib_number" : bib_number_text_box.value, "Name" : name_text_box.value, "Age" : age_dropdown.value, "Gender" : gender_dropdown.value})
-        bib_number_text_box.value = ""
-        name_text_box.value = ""
-        age_dropdown.value = ""
-        gender_dropdown.value = ""
-        #pg.page.update()
-        
-
+        if bib_number_text_box.value != "" and name_text_box.value != "" and age_dropdown.value != None and gender_dropdown.value != None:
+            db.insert({"bib_number" : bib_number_text_box.value, "Name" : name_text_box.value, "Age" : age_dropdown.value, "Gender" : gender_dropdown.value})
+            bib_number_text_box.value = ""
+            name_text_box.value = ""
+            age_dropdown.value = ""
+            gender_dropdown.value = ""
+        else:
+            if bib_number_text_box.value == "":
+                bib_number_text_box.error_text = "Cannot be empty"
+            if name_text_box.value == "":
+                name_text_box.error_text = "Cannot be empty"
+            if age_dropdown.value == None:
+                age_dropdown.error_text = "Select age"
+            if gender_dropdown.value == None:
+                gender_dropdown.error_text = "Select Gender"
 
     text = ft.Text()
     submit_button = ft.ElevatedButton(text="Submit", on_click=button_clicked)
@@ -53,6 +69,7 @@ def new_runner(pg: PageData):
             ft.dropdown.Option("61-70"),
             ft.dropdown.Option("71+")
         ],
+        on_change= onUpdateAge
     )
 
     gender_dropdown = ft.Dropdown(
@@ -63,16 +80,17 @@ def new_runner(pg: PageData):
             ft.dropdown.Option("Female"),
             ft.dropdown.Option("Other")
         ],
+        on_change= onUpdateGender
     )
     pg.add(age_dropdown, gender_dropdown, submit_button, text)
      
-@route ("record_time")
+@route("record_time")
 def record_time(pg: PageData):
     def button_clicked(e):
         a = db.get(where('Bib number')== BibNumber_textbox.value)
         print(a)
         if a == None:
-            pg.page.add(text = ft.Text("Bib Number not found"))
+            pg.page.add(ft.Text("Bib Number not found"))
         else:
             db.update(where('Bib number') == BibNumber_textbox.value, set('Time', Time_textbox.value))
 
@@ -82,7 +100,6 @@ def record_time(pg: PageData):
     Submit_button = ft.ElevatedButton(text="Submit", on_click=button_clicked)
     pg.page.add(BibNumber_textbox, Time_textbox, Submit_button)
 
-       
 def main(page: ft.Page):
     VirtualFletNavigator().render(page)
 
